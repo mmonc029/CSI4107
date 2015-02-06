@@ -1,0 +1,443 @@
+package Parser;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
+import org.apache.lucene.analysis.core.StopFilter;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.en.PorterStemFilter;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.DocsEnum;
+import org.apache.lucene.index.Fields;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Bits;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.Version;
+import org.tartarus.snowball.ext.PorterStemmer;
+
+
+public class Lucene
+{
+	
+	private static List<String> ParsedList = new ArrayList<String>();
+	private static List<String> StemmedList = new ArrayList<String>();
+	//private static List<String> SiteList  = new ArrayList<String>();
+	private static List<String> TestList  = new ArrayList<String>();
+	//private static List<String> WWWList  = new ArrayList<String>();
+	private static List<String> TestQueryList  = new ArrayList<String>();
+	private static List<String> StopWordsList  = new ArrayList<String>();
+	private static Stemmer stemwords = new Stemmer();
+	//private static Directory directory = new RAMDirectory();   // RAM index storage
+
+
+	
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args)
+	{
+		//parses the queries to get the search items
+		TestQueryList = getTestQueries();
+		TestList = getTestName();
+		
+		//	Specify the analyzer for tokenizing text.
+	    //	The analyzer is used for indexing and searching
+		EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_4_10_3);
+		//StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
+		
+
+
+		Writer writer = null;
+		IndexReader reader = null;
+		try
+		{
+			//	Code to create the index
+			Directory index = FSDirectory.open(new File("Data\\index")); 
+			
+			
+			//updateIndex builds the index
+			//updateIndex(index, analyzer);
+			
+			//Search index and write results to SearchResults.txt
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Data\\SearchResults.txt"), "utf-8"));
+
+			
+			for(int l=0; l < TestQueryList.size(); l++)
+			{
+				//	Text to search
+				String querystr =  TestQueryList.get(l).toLowerCase();
+
+				//Stem query 
+				//querystr = stemwords.getStringStem(querystr);
+				querystr = querystr.replaceAll("[0-9]", " ");
+ 
+				//	The "title" arg specifies the default field to use when no field is explicitly specified in the query
+				Query q = new QueryParser(Version.LUCENE_4_10_3, "title", analyzer).parse(querystr);
+				
+				// Searching code
+				int hitsPerPage  = 1000;
+			    reader = DirectoryReader.open(index);
+			    IndexSearcher searcher = new IndexSearcher(reader);
+			    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+			    searcher.search(q, collector);
+			    ScoreDoc[] hits = collector.topDocs().scoreDocs;
+			    System.out.println(TestList.get(l)); 
+			try {	    
+			    //	Code to display the results of search
+			    for(int i=0;i<hits.length;++i) 
+			    {
+			      int docId = hits[i].doc;
+			      Document d = searcher.doc(docId);
+			      
+			     //System.out.println(d.get("isbn") + d.get("title")); 
+			      String filter = TestList.get(l).replaceAll("[M][B][0]","");
+			      writer.write(filter + "\t" + "Q0" + "\t" + d.get("isbn") + "\t" + (i + 1) +"\t" + hits[i].score +"\t" + "myrun" + "\n");
+			    }
+			    
+				} catch (IOException ex) {
+					System.out.println(ex.getMessage());
+				} 
+			   System.out.println("Found " + hits.length + " hits.");
+
+			}
+			//System.out.println("Total: " + gettotal());
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}finally {
+			   try {
+				    // close IO streams
+				   reader.close();
+				   writer.close();
+			   } catch (Exception ex) {
+				   System.out.println(ex.getMessage());
+			   }
+		}
+		
+		
+	}
+	
+	private static void addDoc(IndexWriter w, String title, String isbn) throws IOException 
+	{
+		  Document doc = new Document();
+		  // A text field will be tokenized	  
+		  doc.add(new TextField("title", title, Field.Store.YES));
+		  // We use a string field for isbn because we don't want it tokenized represents the tweet ID
+		  doc.add(new StringField("isbn", isbn, Field.Store.YES));
+		  w.addDocument(doc);
+	}
+
+
+	
+	
+
+	private static  List<String> getTestQueries()
+	{
+		BufferedReader reader = null;
+		List<String> QueryList  = new ArrayList<String>();
+		
+		try {
+		    File file = new File("Data/TestQueries.txt");
+		    reader = new BufferedReader(new FileReader(file));
+		    String Query;
+		    String line;
+		    while ((line = reader.readLine()) != null) {	    	
+		    	if(line.indexOf("<title>") == -1)
+		    	{
+		    			
+		    	}
+		    	else
+		    	{
+		    		Query = line.substring(8, line.indexOf("</title>"));
+		    		Query = Query.replaceAll("[^a-zA-Z0-9]", " ");
+		    		
+		    		QueryList.add(Query);
+		    	}
+
+		    }
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        reader.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+
+		return QueryList;
+	}
+		
+		
+	private static  List<String> getListParsed()
+	{
+		
+		BufferedReader reader = null;
+		List<String> ListParsed  = new ArrayList<String>();
+
+
+		try {
+		    File file = new File("Data/SampleData.txt");
+		    reader = new BufferedReader(new FileReader(file));
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+		    	String example = line;
+
+				StringBuilder result = new StringBuilder(example.length());
+				//Remove stopwords
+				for (String s : example.split("\\b"))
+				{
+				    if (!StopWordsList.contains(s)) result.append(s);
+				}
+		    	//filter out websites and punctuation marks
+				example = result.toString().replaceAll("[w][w][w][.][a-zA-Z0-9|^a-zA-Z0-9|\\S]*[\\s]","");
+				example = example.replaceAll("[h][t][t][p][:][/][/][\\S]*|[h][t][t][p][:][/][/][\\S]*[\\s]","");
+				example = example.replaceAll("[^a-zA-Z0-9]", " ");
+				example = example.toLowerCase();
+		    	
+		    	ListParsed.add(example);
+		    	
+		    }		
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        reader.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+		CreateFile("Data/ParsedData.txt", ListParsed);
+		
+		return ListParsed;	
+	}
+
+	//Retrieve the list of stopwords from stopwords.txt and store into an array list to be used for stop word removal
+	private static  List<String> getStopWords()
+	{
+		BufferedReader reader = null;
+		List<String> WordsList  = new ArrayList<String>();
+
+		try {
+		    File file = new File("Data/StopWords.txt");
+		    reader = new BufferedReader(new FileReader(file));
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+
+		    	WordsList.add(line);
+		    }
+		
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        reader.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+		
+		return WordsList;	
+	}
+	
+
+	
+	private static  List<String> getTestName()
+	{
+		BufferedReader reader = null;
+		List<String> QueryList  = new ArrayList<String>();
+		
+		try {
+		    File file = new File("Data/TestQueries.txt");
+		    reader = new BufferedReader(new FileReader(file));
+		    String Query;
+		    String line;
+		    while ((line = reader.readLine()) != null) {	    	
+		    	if(line.indexOf("<num> Number:") == -1)
+		    	{
+		    			
+		    	}
+		    	else
+		    	{
+		    		Query = line.substring(14, line.indexOf("</num>"));
+		    		QueryList.add(Query);
+		    	}
+
+		    }
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    try {
+		        reader.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+
+		return QueryList;
+	}
+	
+	//Creates a file with the information from an array list 
+	private static void CreateFile(String Directory, List<String> parser)
+	{
+		try {
+			 
+		      File file = new File(Directory);
+	
+		      if (file.createNewFile()){
+		        System.out.println("File is created!");
+		      }else{
+		  		Writer writer = null;
+
+				try {
+				    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Directory), "utf-8"));
+				    for(int i=0; i< parser.size(); i++)
+				    {
+				    	writer.write(parser.get(i) + "\n");
+				    }
+				} catch (IOException ex) {
+				  // report
+				} finally {
+				   try {writer.close();} catch (Exception ex) {}
+				}
+			 }
+	
+	  	} catch (IOException e) {
+		      e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
+	
+	
+	//Builds the index
+	private static void updateIndex(Directory invertedindex,EnglishAnalyzer analyze)
+	{
+		
+		ParsedList = getListParsed();
+		//StemmedList = stemwords.getPorterStem("Data/ParsedData.txt");	
+		
+		try
+		{
+	    	
+			IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_3, analyze);
+			
+			IndexWriter w = new IndexWriter(invertedindex, config);
+			//filter the parsedlist of stop words, numbers and non characters
+	        for (int i = 0; i < StemmedList.size(); i++)
+	        {
+	        	String example = ParsedList.get(i).substring(17);
+		       // String example = StemmedList.get(i).substring(17);
+
+				example = example.replaceAll("[0-9]", " ");
+	        	//System.out.println(example);
+				example = example.toLowerCase();
+	        	//System.out.println(ParsedList.get(i).substring(0, 17));
+	        	//System.out.println(result.toString().substring(18));
+	        	//addDoc(w,result.toString().substring(18), ParsedList.get(i).substring(0, 17));
+				addDoc(w,example, StemmedList.get(i).substring(0, 17));
+				//System.out.println((i + 1) + ". " + ParsedList.get(i).substring(0, 17) + "\t" +example);
+	        	
+	        }
+	        w.commit();
+			w.close();
+		}catch(Exception e)
+			{
+				System.out.println(e.getMessage());
+			}		
+	}
+	
+	private static int gettotal()
+	{
+
+	    int i =0;
+	    IndexReader indexReader;
+		try {
+		    FSDirectory directory = FSDirectory.open(new File("Data\\index"));
+			indexReader = DirectoryReader.open(directory);
+
+	    Bits liveDocs = MultiFields.getLiveDocs(indexReader);
+	    Fields fields = MultiFields.getFields(indexReader);
+	    for (String field : fields) {
+	
+	        TermsEnum termEnum = MultiFields.getTerms(indexReader, field).iterator(null);
+	        BytesRef bytesRef;
+	        while ((bytesRef = termEnum.next()) != null) {
+	            if (termEnum.seekExact(bytesRef)) {
+	
+	                DocsEnum docsEnum = termEnum.docs(liveDocs, null);
+	
+	                if (docsEnum != null) {
+	                    int doc;
+	                    while ((doc = docsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS ) {
+	                        //System.out.println(bytesRef.utf8ToString() + " in doc " + doc + ": " + docsEnum.freq());
+	                        //i++;
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    for (String field : fields) {
+	        TermsEnum termEnum = MultiFields.getTerms(indexReader, field).iterator(null);
+	        BytesRef bytesRef;
+	       
+	        while ((bytesRef = termEnum.next()) != null && i<100) {
+	            int freq = indexReader.docFreq(new Term(field, bytesRef));
+	            
+	           if( isNumeric(bytesRef.utf8ToString())== false)
+	           {
+	            System.out.println(bytesRef.utf8ToString() + " in " + freq + " documents");
+	            i++;
+	           }
+	
+	        }
+	    }
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 return i;
+	
+	}
+    private static boolean isNumeric(String str)
+    {
+      return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+    }
+	
+}

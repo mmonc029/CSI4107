@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.util.regex.Pattern"/>
+<fullyQualifiedTypeName name="java.util.regex.Matcher"/>
+<fullyQualifiedTypeName name="java.io.Writer"/>
+<fullyQualifiedTypeName name="java.io.BufferedWriter"/>
+<fullyQualifiedTypeName name="java.io.FileOutputStream"/>
+<fullyQualifiedTypeName name="java.io.OutputStreamWriter"/>
+<fullyQualifiedTypeName name="java.util.HashSet"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.TokenStream"/>
+<fullyQualifiedTypeName name="java.io.StringReader"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.standard.StandardTokenizer"/>
+<fullyQualifiedTypeName name="java.util.Set"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.core.StopFilter"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.en.PorterStemFilter"/>
+<fullyQualifiedTypeName name="java.io.FileReader"/>
+<fullyQualifiedTypeName name="java.io.FileWriter"/>
+<fullyQualifiedTypeName name="java.io.IOException"/>
+<fullyQualifiedTypeName name="java.io.StreamTokenizer"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.util.CharArraySet"/>
+<fullyQualifiedTypeName name="org.apache.lucene.store.FSDirectory"/>
+<fullyQualifiedTypeName name="org.tartarus.snowball.ext.PorterStemmer"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.core.LowerCaseFilter"/>
+<fullyQualifiedTypeName name="org.apache.lucene.analysis.en.EnglishAnalyzer"/>
+<fullyQualifiedTypeName name="org.apache.lucene.util.Bits"/>
+<fullyQualifiedTypeName name="org.apache.lucene.index.Fields"/>
+<fullyQualifiedTypeName name="org.apache.lucene.index.MultiFields"/>
+<fullyQualifiedTypeName name="org.apache.lucene.util.BytesRef"/>
+<fullyQualifiedTypeName name="org.apache.lucene.index.TermsEnum"/>
+<fullyQualifiedTypeName name="org.apache.lucene.index.DocsEnum"/>
+<fullyQualifiedTypeName name="org.apache.lucene.search.DocIdSetIterator"/>
+<fullyQualifiedTypeName name="org.apache.lucene.index.Term"/>
+</qualifiedTypeNameHistroy>
