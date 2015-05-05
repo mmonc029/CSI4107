@@ -1,0 +1,85 @@
+=== Run information ===
+
+Scheme:weka.classifiers.trees.J48 -C 0.25 -M 2
+Relation:     opinion-weka.filters.unsupervised.attribute.StringToWordVector-R1-W1000-prune-rate-1.0-N0-stemmerweka.core.stemmers.NullStemmer-M2-tokenizerweka.core.tokenizers.WordTokenizer -delimiters " \r \t.,\'\"?/-@\%&=#<>[]* "
+Instances:    7230
+Attributes:   1087
+[list of attributes omitted]
+Test mode:10-fold cross-validation
+
+=== Classifier model (full training set) ===
+
+J48 pruned tree
+------------------
+
+negativeW <= 0
+|   negativeE <= 0
+|   |   positiveW <= 0
+|   |   |   positiveE <= 0: objective (3092.0)
+|   |   |   positiveE > 0: positive (1058.0)
+|   |   positiveW > 0: positive (2371.0)
+|   negativeE > 0
+|   |   positiveE <= 0
+|   |   |   positiveW <= 0: negative (28.0)
+|   |   |   positiveW > 0: neutral (7.0)
+|   |   positiveE > 0
+|   |   |   positiveW <= 0
+|   |   |   |   positiveE <= 1: neutral (6.0)
+|   |   |   |   positiveE > 1: positive (3.0)
+|   |   |   positiveW > 0: positive (4.0)
+negativeW > 0
+|   positiveW <= 0
+|   |   positiveE <= 0: negative (337.0)
+|   |   positiveE > 0
+|   |   |   positiveE <= 1
+|   |   |   |   negativeW <= 1: neutral (71.0/1.0)
+|   |   |   |   negativeW > 1: negative (8.0)
+|   |   |   positiveE > 1
+|   |   |   |   negativeW <= 1: positive (23.0)
+|   |   |   |   negativeW > 1: neutral (3.0)
+|   positiveW > 0
+|   |   negativeW <= 1
+|   |   |   positiveE <= 0
+|   |   |   |   positiveW <= 1: neutral (108.0/1.0)
+|   |   |   |   positiveW > 1: positive (33.0/1.0)
+|   |   |   positiveE > 0: positive (57.0)
+|   |   negativeW > 1
+|   |   |   positiveW <= 1: negative (17.0/1.0)
+|   |   |   positiveW > 1: positive (4.0/1.0)
+
+Number of Leaves  : 	18
+
+Size of the tree : 	35
+
+
+Time taken to build model: 35.36 seconds
+
+=== Stratified cross-validation ===
+=== Summary ===
+
+Correctly Classified Instances        7225               99.9308 %
+Incorrectly Classified Instances         5                0.0692 %
+Kappa statistic                          0.9988
+Mean absolute error                      0.0007
+Root mean squared error                  0.0192
+Relative absolute error                  0.231  %
+Root relative squared error              5.0808 %
+Total Number of Instances             7230     
+
+=== Detailed Accuracy By Class ===
+
+               TP Rate   FP Rate   Precision   Recall  F-Measure   ROC Area  Class
+                 1         0.001      0.999     1         1          1        positive
+                 0.995     0          0.997     0.995     0.996      0.997    negative
+                 0.985     0          0.99      0.985     0.987      0.992    neutral
+                 1         0          1         1         1          1        objective
+Weighted Avg.    0.999     0          0.999     0.999     0.999      1    
+
+=== Confusion Matrix ===
+
+    a    b    c    d   <-- classified as
+ 3551    0    0    0 |    a = positive
+    0  389    2    0 |    b = negative
+    2    1  193    0 |    c = neutral
+    0    0    0 3092 |    d = objective
+

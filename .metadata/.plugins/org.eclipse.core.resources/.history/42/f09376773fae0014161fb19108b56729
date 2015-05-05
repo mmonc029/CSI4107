@@ -87,7 +87,7 @@ public class Lucene
 			
 			
 			//updateIndex builds the index
-			//updateIndex(index, analyzer);
+			updateIndex(index, analyzer);
 			
 			//Search index and write results to SearchResults.txt
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Data\\SearchResults.txt"), "utf-8"));
@@ -222,9 +222,9 @@ public class Lucene
 				    if (!StopWordsList.contains(s)) result.append(s);
 				}
 		    	//filter out websites and punctuation marks
-				example = result.toString().replaceAll("[w][w][w][.][a-zA-Z0-9|^a-zA-Z0-9|\\S]*[\\s]","");
-				example = example.replaceAll("[h][t][t][p][:][/][/][\\S]*|[h][t][t][p][:][/][/][\\S]*[\\s]","");
-				example = example.replaceAll("[^a-zA-Z0-9]", " ");
+				//example = result.toString().replaceAll("[w][w][w][.][a-zA-Z0-9|^a-zA-Z0-9|\\S]*[\\s]","");
+				//example = example.replaceAll("[h][t][t][p][:][/][/][\\S]*|[h][t][t][p][:][/][/][\\S]*[\\s]","");
+				example = result.toString().replaceAll("[^a-zA-Z0-9]", " ");
 				example = example.toLowerCase();
 		    	
 		    	ListParsed.add(example);
@@ -364,7 +364,7 @@ public class Lucene
 		        String example = StemmedList.get(i).substring(17);
 
 				example = example.replaceAll("[0-9]", " ");
-	        	//System.out.println(example);
+	        	System.out.println(example);
 				example = example.toLowerCase();
 	        	//System.out.println(ParsedList.get(i).substring(0, 17));
 	        	//System.out.println(result.toString().substring(18));

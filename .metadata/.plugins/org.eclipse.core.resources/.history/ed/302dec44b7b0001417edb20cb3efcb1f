@@ -87,7 +87,7 @@ public class Lucene
 			
 			
 			//updateIndex builds the index
-			//updateIndex(index, analyzer);
+			updateIndex(index, analyzer);
 			
 			//Search index and write results to SearchResults.txt
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Data\\SearchResults.txt"), "utf-8"));
@@ -364,7 +364,7 @@ public class Lucene
 		        String example = StemmedList.get(i).substring(17);
 
 				example = example.replaceAll("[0-9]", " ");
-	        	//System.out.println(example);
+	        	System.out.println(example);
 				example = example.toLowerCase();
 	        	//System.out.println(ParsedList.get(i).substring(0, 17));
 	        	//System.out.println(result.toString().substring(18));
